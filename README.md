@@ -12,19 +12,17 @@ Once the environment is set up, install the packages required for the project:
 ```bash
 pip install torch==1.13.1 torchvision==0.14.1 numpy==1.21.6 pandas==1.3.5 scikit-learn==1.0.2 termcolor==1.1.0
 ```
-## Running
 ## Project Structure
-- `data/`: Contains the required datasets, specifically iRNA-ac4C and Meta-ac4C.
-- `Result/`: Stores pre-trained models ready for inference. It includes TBC-ac4C.pt.
+The folder and file composition of the project is shown below:
+- `data/`: The dataset is divided into four subsets—A, U, C, and G—based on the base d at the modified site, and each subset is split into training and testing sets in a 7:3 ratio.
+- `Result/`: Store the trained model files corresponding to the four datasets
 
-In addition, the main scripts and files are as follows:
-- `MyDataset.py`: Handles data loading and preprocessing.
-- `until.py`: Computes and evaluates model performance metrics.
-- `Mymodel.py`: Defines the BiFAM-2OM model architecture.
-- `Mytrain.py`: Training script can be run directly to train the model.
-- `Mytest.py`: Testing script can be run directly to evaluate the model and reproduce results.
-
-If you aim to train the BiFAM-2OM model or use a successfully trained model for testing, please run the following code:
+- `MyDataset.py`: Implement RNA sequence encoding, dataset loading and splitting, and output training, validation, and test sets using DataLoader.
+- `until.py`: Provides model evaluation, metric calculation, and loss functions.
+- `Mymodel.py`: Model structure of RNA 2'-O-methylation sites
+- `Mytrain.py`: Run this file to train the model.
+- `Mytest.py`: Run this file to test the trained model.
+Execute the following commands to complete model training and evaluation:
 ```bash
 python Mytrain.py
 python Mytest.py
