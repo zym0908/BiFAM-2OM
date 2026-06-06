@@ -17,11 +17,12 @@ The folder and file composition of the project is shown below:
 - `data/`: The dataset is divided into four subsets—A, U, C, and G—based on the base d at the modified site, and each subset is split into training and testing sets in a 7:3 ratio.
 - `Result/`: Store the trained model files corresponding to the four datasets
 
-- `MyDataset.py`: Implement RNA sequence encoding, dataset loading and splitting, and output training, validation, and test sets using DataLoader.
+- `MyDataset.py`: Implement RNA sequence encoding, dataset loading and splitting, and output training and test sets using DataLoader.
 - `until.py`: Provides model evaluation, metric calculation, and loss functions.
 - `Mymodel.py`: Model structure of RNA 2'-O-methylation sites
 - `Mytrain.py`: Run this file to train the model.
 - `Mytest.py`: Run this file to test the trained model.
+## Quick Start
 Execute the following commands to complete model training and evaluation:
 ```bash
 python Mytrain.py
