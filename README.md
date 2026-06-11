@@ -1,7 +1,7 @@
-# BiFAM-2OM
-Bidirectional Fusion of Adaptive Attention-Enhanced Multi-Scale Convolution and BiLSTM for RNA 2’-O-Methylation Sites Prediction
+# IDBF-2OM:
+An Interpretable Dual-Branch Fusion Architecture for RNA 2’-O-Methylation Site Prediction 
 ## Description
-BiFAM-2OM is a novel bioinformatics tool designed to accurately predict 2'-O-methylation sites in RNA. The method integrates a Transformer encoder, a multi-scale convolutional attention mechanism, and a bidirectional long short-term memory (BiLSTM) network, and employs a bidirectional cross-attention mechanism to weight and fuse features. This model is capable of accurately identifying 2'-O-methylation sites across all four nucleotide types.
+IDBF-2OM is a novel bioinformatics tool designed to accurately predict 2'-O-methylation sites in RNA. The method integrates a Transformer encoder, a multi-scale convolutional attention mechanism, and a bidirectional long short-term memory (BiLSTM) network, and employs a bidirectional cross-attention mechanism to weight and fuse features. This model is capable of accurately identifying 2'-O-methylation sites across all four nucleotide types.
 ## Requirements
 Create and activate the Conda virtual environment before running:
 ```bash
