@@ -200,7 +200,7 @@ class AttnFusion(nn.Module):
         return fused_feat
         
 class abcmodel(nn.Module):
-    def __init__(self, in_channels=64, out_channels=100):
+    def __init__(self, in_channels=64, feat_channels=100):
         super().__init__()
         self.emb_dim = 64
         self.max_len = 41
@@ -216,11 +216,13 @@ class abcmodel(nn.Module):
             bidirectional=True,
             dropout=0.2
         )
-        self.feat_enhance = Res_CS_block_1D(in_channels, out_channels)
-        self.bi_cross = BiCrossAttention(d_model=100, dropout=0.2, heads=8, num_layers=3)
+        self.feat_enhance = Res_CS_block_1D(in_channels, feat_channels)
+        # self.feat_enhance = Res_CS_block_1D(in_channels, feat_channels)
+        # self.dwconv = depthwise_separable_conv1d(64, 100, 1)
+        self.bi_cross = BiCrossAttention(d_model=100, dropout=0.2, heads=4, layers=3)
         self.attn_fusion = AttnFusion(d_model=100, dropout=0.2)
         self.classifier = nn.Sequential(
-            nn.Linear(100, 64), nn.BatchNorm1d(64), nn.Dropout(0.2), nn.LeakyReLU(),
+            nn.Linear(100, 64), nn.BatchNorm1d(64), nn.Dropout(0.3), nn.LeakyReLU(),
             nn.Linear(64, 2), nn.Softmax(dim=1))
 
     def forward(self, seqs):
@@ -228,17 +230,16 @@ class abcmodel(nn.Module):
         seqs_feature = self.transformer_encoder(seqs_feature)
 
         output1 = seqs_feature.permute(0, 2, 1)  
-        output1 = self.feat_enhance(output1) 
+        output1 = self.feat_enhance(output1)  
         output1 = output1.permute(0, 2, 1) 
 
-        output2, _ = self.bilstm(seqs_feature)  
+        output2, _ = self.bilstm(seqs_feature) 
 
         fused1, fused2 = self.bi_cross(output1, output2)
 
         g1 = torch.mean(fused1, dim=1) 
-        g2 = torch.mean(fused2, dim=1) 
-        global_feat = torch.stack([g1, g2], dim=1) 
-        output = self.attn_fusion(global_feat) 
+        g2 = torch.mean(fused2, dim=1)  
+        global_feat = torch.stack([g1, g2], dim=1)  
+        output = self.attn_fusion(global_feat)  
         output = self.classifier(output)
         return output
-
