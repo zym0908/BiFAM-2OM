@@ -43,7 +43,7 @@ class EarlyStopping:
         torch.save(model.state_dict(), path)
 
 
-def train_test(train_iter, test_iter, ind_iter, iter_k):
+def train_test(train_iter, test_iter, iter_k):
     global best_ROC
     net = abcmodel().to(device)
     lr = 0.0001
@@ -82,7 +82,6 @@ def train_test(train_iter, test_iter, ind_iter, iter_k):
         with torch.no_grad():
             train_performance, _, _, _ = evaluate(train_iter, net)
             test_performance, test_roc_data, test_prc_data, label_real = evaluate(test_iter, net)
-            ind_performance, _, _, _ = evaluate(ind_iter, net)
 
         results = f"\nepoch: {epoch + 1}, loss: {np.mean(loss_ls):.5f}\n"
         results += f'train_acc: {train_performance[0]:.4f}, time: {time.time() - t0:.2f}'
@@ -91,20 +90,12 @@ def train_test(train_iter, test_iter, ind_iter, iter_k):
             test_performance[0], test_performance[1], test_performance[2], test_performance[3],
             test_performance[4], test_performance[5]) + '\n' + '=' * 60
         print(results)
-        # 格式化独立测试集结果，确保每个元素保留四位小数并以制表符分隔
-        ind_res_str = '{:.4f},\t{:.4f},\t{:.4f},\t{:.4f},\t{:.4f},\t{:.4f}'.format(
-            ind_performance[0], ind_performance[1], ind_performance[2],
-            ind_performance[3], ind_performance[4], ind_performance[5]
-        )
-        print(ind_res_str)
 
         test_acc = test_performance[0]  # test_performance: [ACC, Sensitivity, Specificity, AUC, MCC]
-        ind_acc = ind_performance[0]
 
-        if ind_acc > 0.89:
-            filename = '{}, {}[{:.4f}], {}[{:.4f}].pt'.format(
-                'mRNA_Model' + ', {}折'.format(iter_k + 1) + ', epoch[{}]'.format(epoch + 1), 'ACC', test_acc, 'indACC',
-                ind_acc)
+        if test_acc > 0.89:
+            filename = '{}, {}[{:.4f}].pt'.format(
+                'mRNA_Model' + ', {}折'.format(iter_k + 1) + ', epoch[{}]'.format(epoch + 1), 'ACC', test_acc)
             save_path_pt = os.path.join('./Result', filename)
             torch.save(net.state_dict(), save_path_pt, _use_new_zipfile_serialization=False)
 
@@ -112,17 +103,12 @@ def train_test(train_iter, test_iter, ind_iter, iter_k):
         if test_acc > best_acc:
             best_acc = test_acc
             best_performance = test_performance
-            best_ind_performance = ind_performance
 
             best_results = '\n' + '=' * 16 + colored(' Best Performance. Epoch[{}] ', 'red').format(
                 epoch + 1) + '=' * 16 \
                            + '\n[ACC,\tREC-SN,\t\tPRE,\t\tMCC,\tAUROC,\tAUPRC]\n' + '{:.4f},\t{:.4f},\t{:.4f},\t{:.4f},\t{:.4f},\t{:.4f}' \
                                .format(best_performance[0], best_performance[1], best_performance[2],
                                        best_performance[3], best_performance[4], best_performance[5]) \
-                           + '\n' + colored('Corresponding Independent Test Performance:', 'green') \
-                           + '\n[ACC,\tREC-SN,\t\tPRE,\t\tMCC,\tAUROC,\tAUPRC]\n' + '{:.4f},\t{:.4f},\t{:.4f},\t{:.4f},\t{:.4f},\t{:.4f}' \
-                               .format(best_ind_performance[0], best_ind_performance[1], best_ind_performance[2],
-                                       best_ind_performance[3], best_ind_performance[4], best_ind_performance[5]) \
                            + '\n' + '=' * 60
             best_ROC = test_roc_data
             best_PRC = test_prc_data
@@ -147,7 +133,7 @@ def train_test(train_iter, test_iter, ind_iter, iter_k):
     return best_performance, best_results, best_ROC, best_PRC
 
 
-def K_CV(file, ind_iter, k):
+def K_CV(file, k):
     tmp = pd.read_csv(file)
     seqs = tmp["seq"]
     labels = tmp["label"]
@@ -162,7 +148,7 @@ def K_CV(file, ind_iter, k):
         train_lables, test_labels = labels[train_index], labels[test_index]
         train_iter = construct_dataset(train_seqs, train_lables, train=True)
         test_iter = construct_dataset(test_seqs, test_labels, train=False)
-        performance, _, ROC, PRC = train_test(train_iter, test_iter, ind_iter, iter_k)
+        performance, _, ROC, PRC = train_test(train_iter, test_iter, iter_k)
         CV_perform.append(performance)
 
     print('\n' + '=' * 16 + colored(' Cross-Validation Performance ',
@@ -180,5 +166,4 @@ def K_CV(file, ind_iter, k):
 
 if __name__ == '__main__':
     # k-fold cross-validation
-    ind_iter = load_ind_data("data/A_test.csv")
-    K_CV('data/A_train.csv', ind_iter, k=10)
+    K_CV('data/A_train.csv', k=10)
