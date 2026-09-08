@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # Evaluating the Results on the Independent Test Set of iRNA-ac4C
     file = "data/G_test.csv"
     test_iter = load_ind_data(file)
-    path_pretrain_model = "Result/mRNA_Model, 4折, epoch[15], ACC[0.8525], indACC[0.9074].pt"
+    path_pretrain_model = "Result/G2OM_BiFAM-2OM.pt"
     model = abcmodel().to(device)
     model = load_model(model, path_pretrain_model)
     model.eval()
